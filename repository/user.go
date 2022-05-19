@@ -1,7 +1,7 @@
 package repository
 
-import "gorm.io/gorm"
+import "database/sql"
 
 type UserRepository struct {
-	*gorm.DB
+	db *sql.DB
 }
