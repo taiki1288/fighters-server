@@ -10,6 +10,7 @@ import (
 type User interface {
 	CreateUser(ctx context.Context, user *entity.User) error
 	FindByUserID(ctx context.Context, userID string) (*entity.User, error)
+	UpdateUser(ctx context.Context, user *entity.User) error
 }
 
 type UserRepository struct {
@@ -77,3 +78,19 @@ func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*e
 
 	return user, nil
 }
+
+func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
+    const (
+        update = `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
+    )
+    result, err := repo.db.Exec(update)
+    if err != nil {
+        return err
+    }
+
+    _, err = result.RowsAffected()
+    if err != nil {
+        return err
+    }
+    return nil
+} 
