@@ -47,6 +47,9 @@ func (repo *UserRepository) CreateUser(ctx context.Context, user *entity.User) e
 		&user.CreatedAt, 
 		&user.UpdatedAt,
 	)
+	if err != nil{
+		return err
+	}
 
 	return nil
 }
