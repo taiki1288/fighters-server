@@ -34,8 +34,8 @@ func (repo *UserRepository) CreateUser(ctx context.Context, user *entity.User) e
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		user.ID, 
-		user.Name, 
+		user.ID,
+		user.Name,
 		user.SelfIntroduction,
 		user.Age,
 		user.LikeFighters,
@@ -51,7 +51,7 @@ func (repo *UserRepository) CreateUser(ctx context.Context, user *entity.User) e
 
 func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*entity.User, error) {
 	query := `SELECT id, name, self_introduction, like_fighters, created_at, updated_at FROM users WHERE id = ?`
-    stmt, err := repo.db.Prepare(query)
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		return nil, err
 	}
@@ -78,31 +78,31 @@ func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*e
 }
 
 func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
-    update := `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
+	update := `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
 	stmt, err := repo.db.Prepare(update)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(
-		user.ID, 
-		user.Name, 
-		user.SelfIntroduction, 
-		user.Age, 
-		user.LikeFighters, 
+		user.ID,
+		user.Name,
+		user.SelfIntroduction,
+		user.Age,
+		user.LikeFighters,
 		user.UpdatedAt,
 	)
 	if err != nil {
 		return err
 	}
 
-    _, err = result.RowsAffected()
-    if err != nil {
-        return err
-    }
-    return nil
-} 
+	_, err = result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func (repo *UserRepository) DeleteUser(ctx context.Context, userID string) error {
 	delete := `DELETE FROM users WHERE id = ?`
