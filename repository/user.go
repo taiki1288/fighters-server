@@ -50,14 +50,18 @@ func (repo *UserRepository) CreateUser(ctx context.Context, user *entity.User) e
 }
 
 func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*entity.User, error) {
-	const (
-		find = `SELECT id, name, self_introduction, like_fighters, created_at, updated_at FROM users WHERE id = ?`
-	)
-	row := repo.db.QueryRow(find, userID)
+	query := `SELECT id, name, self_introduction, like_fighters, created_at, updated_at FROM users WHERE id = ?`
+    stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(userID)
 
 	user := &entity.User{}
 
-	err := row.Scan(
+	err = row.Scan(
 		&user.ID,
 		&user.Name,
 		&user.SelfIntroduction,
