@@ -8,5 +8,5 @@ func NewDB() (*sql.DB, error) {
 		panic(err)
 	}
 	err = db.Close()
-	return db, err
+	return db, nil
 }
