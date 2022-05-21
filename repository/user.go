@@ -11,6 +11,7 @@ type User interface {
 	CreateUser(ctx context.Context, user *entity.User) error
 	FindByUserID(ctx context.Context, userID string) (*entity.User, error)
 	UpdateUser(ctx context.Context, user *entity.User) error
+	DeleteUser(ctx context.Context, userID string) error
 }
 
 type UserRepository struct {
@@ -94,3 +95,24 @@ func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) e
     }
     return nil
 } 
+
+func (repo *UserRepository) DeleteUser(ctx context.Context, userID string) error {
+	delete := `DELETE FROM users WHERE id = ?`
+	stmt, err := repo.db.Prepare(delete)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	_, err = result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
