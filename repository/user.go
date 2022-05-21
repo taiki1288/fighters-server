@@ -9,7 +9,8 @@ import (
 
 type User interface {
 	CreateUser(ctx context.Context, user *entity.User) error
-	FindByUserID(ctx context.Context, userID string) (*entity.User, error)
+	FindUserByID(ctx context.Context, userID string) (*entity.User, error)
+	FindUserByIDs(ctx context.Context, userIDs []string) ([]*entity.User, error)
 	UpdateUser(ctx context.Context, user *entity.User) error
 	DeleteUser(ctx context.Context, userID string) error
 }
@@ -49,7 +50,7 @@ func (repo *UserRepository) CreateUser(ctx context.Context, user *entity.User) e
 	return nil
 }
 
-func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*entity.User, error) {
+func (repo *UserRepository) FindUserByID(ctx context.Context, userID string) (*entity.User, error) {
 	query := `SELECT id, name, self_introduction, like_fighters, created_at, updated_at FROM users WHERE id = ?`
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -75,6 +76,39 @@ func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*e
 	}
 
 	return user, nil
+}
+
+func (repo *UserRepository) FindUserByIDs(ctx context.Context, userIDs []string) ([]*entity.User, error) {
+	query := `SELECT id, name, self_introduction, age, like_fighters FROM users`
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(userIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*entity.User, len(userIDs))
+
+	for rows.Next() {
+		user := &entity.User{}
+		err := rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.SelfIntroduction,
+			&user.Age,
+			&user.LikeFighters,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
