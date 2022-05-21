@@ -78,8 +78,8 @@ func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*e
 }
 
 func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
-    query := `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
-	stmt, err := repo.db.Prepare(query)
+    update := `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
+	stmt, err := repo.db.Prepare(update)
     if err != nil {
         return err
     }
@@ -89,7 +89,8 @@ func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) e
 		user.ID, 
 		user.Name, 
 		user.SelfIntroduction, 
-		user.Age, user.LikeFighters, 
+		user.Age, 
+		user.LikeFighters, 
 		user.UpdatedAt,
 	)
 	if err != nil {
