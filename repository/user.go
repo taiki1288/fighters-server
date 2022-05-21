@@ -78,13 +78,23 @@ func (repo *UserRepository) FindByUserID(ctx context.Context, userID string) (*e
 }
 
 func (repo *UserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
-    const (
-        update = `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
-    )
-    result, err := repo.db.Exec(update)
+    query := `UPDATE users SET name = ?, self_introduction = ?, age = ?, like_fighters = ?, updated_at=NOW() WHERE id = ?`
+	stmt, err := repo.db.Prepare(query)
     if err != nil {
         return err
     }
+	defer stmt.Close()
+
+	result, err := stmt.Exec(
+		user.ID, 
+		user.Name, 
+		user.SelfIntroduction, 
+		user.Age, user.LikeFighters, 
+		user.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
 
     _, err = result.RowsAffected()
     if err != nil {
