@@ -26,30 +26,23 @@ func NewUserRepository(db *sql.DB) User {
 }
 
 func (repo *UserRepository) CreateUser(ctx context.Context, user *entity.User) error {
-	const (
-		insert = `INSERT INTO users(name, self_introduction, age, like_fighters) VALUES(?, ?, ?, ?)`
-		query = `SELECT name, self_introduction, age, like_fighters, created_at, updated_at FROM users WHERE id = ?`
-	)
-	result, err := repo.db.Exec(insert)
+	insert := `INSERT INTO users(name, self_introduction, age, like_fighters, created_at, updated_at) VALUES(?, ?, ?, ?, NOW(), NOW())`
+	stmt, err := repo.db.Prepare(insert)
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
-	userId, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
-
-	row := repo.db.QueryRowContext(ctx, query, userId)
-
-	err = row.Scan(
-		&user.Name, 
-		&user.SelfIntroduction, 
-		&user.LikeFighters, 
-		&user.CreatedAt, 
-		&user.UpdatedAt,
+	_, err = stmt.Exec(
+		user.ID, 
+		user.Name, 
+		user.SelfIntroduction,
+		user.Age,
+		user.LikeFighters,
+		user.CreatedAt,
+		user.UpdatedAt,
 	)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
